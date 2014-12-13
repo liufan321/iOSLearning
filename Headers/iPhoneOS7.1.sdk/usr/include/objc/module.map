@@ -1,0 +1,22 @@
+module ObjectiveC [system] {
+  umbrella "."
+  export *
+  module * { 
+    export *
+  }
+
+  module NSObject {
+    requires objc
+    header "NSObject.h"
+    export *
+  }
+
+
+
+
+  
+  exclude header "hashtable.h"
+  exclude header "hashtable2.h"
+
+}
+
