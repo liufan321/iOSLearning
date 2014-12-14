@@ -51,3 +51,14 @@
 
 共计 2 个
 
+## 8.2 SDK 差异
+
+### Foundation.framework
+
+#### NSThread.h
+
+新增属性
+
+```
+@property NSQualityOfService qualityOfService NS_AVAILABLE(10_10, 8_0);
+```
