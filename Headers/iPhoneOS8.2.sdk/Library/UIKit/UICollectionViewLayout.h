@@ -13,31 +13,76 @@
 
 // The UICollectionViewLayout class is provided as an abstract class for subclassing to define custom collection layouts.
 // Defining a custom layout is an advanced operation intended for applications with complex needs.
+/**
+ UICollectionViewLayout 类提供了一个抽象类，以便于自定义 collection 布局的子类
+ 自定义布局是一个高级操作，旨在设计复杂交互需求的应用程序
+ */
 
 typedef NS_ENUM(NSUInteger, UICollectionElementCategory) {
-    UICollectionElementCategoryCell,
-    UICollectionElementCategorySupplementaryView,
-    UICollectionElementCategoryDecorationView
+    UICollectionElementCategoryCell,                    // Cell
+    UICollectionElementCategorySupplementaryView,       // 追加视图(类似于Header或者Footer)
+    UICollectionElementCategoryDecorationView           // 装饰视图(可以用作背景视图)
 };
 
 @class UICollectionViewLayoutAttributes;
 @class UICollectionView;
 @class UINib;
 
+/**
+ *  UICollectionViewLayoutAttributes 对象管理 Collection View 中指定 Cell 的布局相关属性
+ */
 NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewLayoutAttributes : NSObject <NSCopying, UIDynamicItem>
 
+/**
+ *  边框
+ */
 @property (nonatomic) CGRect frame;
+/**
+ *  中心点
+ */
 @property (nonatomic) CGPoint center;
+/**
+ *  尺寸
+ */
 @property (nonatomic) CGSize size;
+/**
+ *  3D转换矩阵
+ */
 @property (nonatomic) CATransform3D transform3D;
+/**
+ *  边界
+ */
 @property (nonatomic) CGRect bounds NS_AVAILABLE_IOS(7_0);
+/**
+ *  仿射矩阵
+ */
 @property (nonatomic) CGAffineTransform transform NS_AVAILABLE_IOS(7_0);
+/**
+ *  透明度
+ */
 @property (nonatomic) CGFloat alpha;
+/**
+ *  纵向层次
+ */
 @property (nonatomic) NSInteger zIndex; // default is 0
+/**
+ *  隐藏
+ *
+ *  出于优化目的，UICollectionView 不会为 hidden 属性是 YES 的 item 创建视图
+ */
 @property (nonatomic, getter=isHidden) BOOL hidden; // As an optimization, UICollectionView might not create a view for items whose hidden attribute is YES
+/**
+ *  索引
+ */
 @property (nonatomic, retain) NSIndexPath *indexPath;
 
+/**
+ *  元素分类(Cell / SupplementaryView / DecorationView)
+ */
 @property (nonatomic, readonly) UICollectionElementCategory representedElementCategory;
+/**
+ *  representedElementCategory 等于 UICollectionElementCategoryCell 时 返回 nil
+ */
 @property (nonatomic, readonly) NSString *representedElementKind; // nil when representedElementCategory is UICollectionElementCategoryCell
 
 + (instancetype)layoutAttributesForCellWithIndexPath:(NSIndexPath *)indexPath;
@@ -110,18 +155,38 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewLayout : NSObject <NSCodi
 // Implement -layoutAttributesForElementsInRect: to return layout attributes for for supplementary or decoration views, or to perform layout in an as-needed-on-screen fashion.
 // Additionally, all layout subclasses should implement -layoutAttributesForItemAtIndexPath: to return layout attributes instances on demand for specific index paths.
 // If the layout supports any supplementary or decoration view types, it should also implement the respective atIndexPath: methods for those types.
+/**
+ UICollectionView 调用以下四个方法决定布局信息
+ 
+ 1. 实现 -layoutAttributesForElementsInRect: 返回追加(supplementary)或装饰(decoration)视图的布局属性，或者按照屏幕显示需要的方式进行布局
+ 2. 所有布局子类应该实现 -layoutAttributesForItemAtIndexPath: 返回指定 indexPath 对应的布局属性实例
+ 3. 如果布局支持追加(supplementary)或者装饰(decoration)视图类型，还应该分别实现对应类型的 atIndexPath: 方法
+ */
+/**
+ *  返回指定 rect 范围内所有 cell 的布局属性数组
+ */
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect; // return an array layout attributes instances for all the views in the given rect
 - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath;
 - (UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath;
 - (UICollectionViewLayoutAttributes *)layoutAttributesForDecorationViewOfKind:(NSString*)elementKind atIndexPath:(NSIndexPath *)indexPath;
 
+/**
+ *  当边界发生改变时，是否应该刷新布局
+ *  默认返回 NO，如果返回YES，则在边界变化（滚到到其他位置）时，重新计算需要的布局信息
+ */
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds; // return YES to cause the collection view to requery the layout for geometry information
 - (UICollectionViewLayoutInvalidationContext *)invalidationContextForBoundsChange:(CGRect)newBounds NS_AVAILABLE_IOS(7_0);
 
 - (BOOL)shouldInvalidateLayoutForPreferredLayoutAttributes:(UICollectionViewLayoutAttributes *)preferredAttributes withOriginalAttributes:(UICollectionViewLayoutAttributes *)originalAttributes NS_AVAILABLE_IOS(8_0);
 - (UICollectionViewLayoutInvalidationContext *)invalidationContextForPreferredLayoutAttributes:(UICollectionViewLayoutAttributes *)preferredAttributes withOriginalAttributes:(UICollectionViewLayoutAttributes *)originalAttributes NS_AVAILABLE_IOS(8_0);
 
+/**
+ *  返回停止滚动后的偏移位置
+ */
 - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity; // return a point at which to rest after scrolling - for layouts that want snap-to-point scrolling behavior
+/**
+ *  返回过渡或更新布局之后的偏移位置
+ */
 - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset NS_AVAILABLE_IOS(7_0); // a layout can return the content offset to be applied during transition or update animations
 
 - (CGSize)collectionViewContentSize; // Subclasses must override this method and use it to return the width and height of the collection view’s content. These values represent the width and height of all the content, not just the content that is currently visible. The collection view uses this information to configure its own content size to facilitate scrolling.

@@ -39,13 +39,37 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UICollectionViewFlowLayoutInvalidationCon
 
 NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewFlowLayout : UICollectionViewLayout
 
+/**
+ *  最小行间距
+ */
 @property (nonatomic) CGFloat minimumLineSpacing;
+/**
+ *  Cell 之间的最小间距，默认值是 10.0
+ */
 @property (nonatomic) CGFloat minimumInteritemSpacing;
+/**
+ *  Cell 的默认大小
+ */
 @property (nonatomic) CGSize itemSize;
+/**
+ *  预计的 Cell 大小
+ */
 @property (nonatomic) CGSize estimatedItemSize NS_AVAILABLE_IOS(8_0); // defaults to CGSizeZero - setting a non-zero size enables cells that self-size via -perferredLayoutAttributesFittingAttributes:
+/**
+ 滚动方向
+ */
 @property (nonatomic) UICollectionViewScrollDirection scrollDirection; // default is UICollectionViewScrollDirectionVertical
+/**
+ *  头部引用尺寸
+ */
 @property (nonatomic) CGSize headerReferenceSize;
+/**
+ *  页脚引用尺寸
+ */
 @property (nonatomic) CGSize footerReferenceSize;
+/**
+ *  分区间的间距
+ */
 @property (nonatomic) UIEdgeInsets sectionInset;
 
 @end
