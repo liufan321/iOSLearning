@@ -124,6 +124,31 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface UICollectionViewLayoutInvalidationContext
 
 @end
 
+/**
+ UICollectionViewLayout 一次刷新循环中方法的调用顺序
+ 
+ 1. prepareLayout
+    - 在自定义子类中，必须 super 父类的实现
+    - 在自定义子类中，可以在此方法中设置一些布局相关的初始参数
+ 2. collectionViewContentSize
+    - 确定 collectionView 的 contentSize
+    - layoutAttributesForElementsInRect 方法调用结束后会自动调用此方法，确认 contentSize 是否发生变化
+ 3. layoutAttributesForElementsInRect
+    - 返回指定 rect 范围内所有 cell 的布局属性数组
+    - 滚动过程中，会调用此方法，计算出现在屏幕中的 cell 的布局属性
+    - 如果滚动距离远，之前计算的布局数组不够，会多次调用此方法
+ 4. targetContentOffsetForProposedContentOffset
+    - 滚动 collectionView 手指离开屏幕时调用此方法，返回停止滚动后的偏移位置
+    - 如果滚动距离短，不会调用 layoutAttributesForElementsInRect 方法
+    - 如果滚动距离长，之前 layoutAttributesForElementsInRect 计算的 cell 布局属性不够，
+      会再次调用 layoutAttributesForElementsInRect 方法，计算将要显示 cell 的 布局属性
+    - 如果滚动距离很长，会多次调用 layoutAttributesForElementsInRect 方法
+    - 如果在滚动过程中，只要 contentOffset 发生变化，就重新计算 cell 的布局属性，可以重写 
+      shouldInvalidateLayoutForBoundsChange 方法，并且返回 YES
+ 
+ 如果需要更新 layout，可以给 layout 发送 -invalidateLayout 消息，这样，在下一次 collectionView 的刷新循环中，
+ 会从 prepareLayout 开始，顺序调用 -collectionViewContentSize 和 -layoutAttributesForElementsInRect 等方法生成更新后的布局
+ */
 NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewLayout : NSObject <NSCoding>
 
 // Methods in this class are meant to be overridden and will be called by its collection view to gather layout information.
@@ -133,6 +158,12 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewLayout : NSObject <NSCodi
 
 // Call -invalidateLayout to indicate that the collection view needs to requery the layout information.
 // Subclasses must always call super if they override.
+/**
+ *  调用  -invalidateLayout 方法表示 collection view 需要重新查询布局信息
+ *  如果重写此方法，子类必须 super 父类的实现
+ *
+ *  备注：此方法和 UIView 的 setNeedsLayout 方法十分类似
+ */
 - (void)invalidateLayout;
 - (void)invalidateLayoutWithContext:(UICollectionViewLayoutInvalidationContext *)context NS_AVAILABLE_IOS(7_0);
 
@@ -189,6 +220,15 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionViewLayout : NSObject <NSCodi
  */
 - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset NS_AVAILABLE_IOS(7_0); // a layout can return the content offset to be applied during transition or update animations
 
+/**
+ *  collectionView 的 contentSize
+ *
+ *  自定义子类必须实现此方法，返回 collectionView 内容的宽和高
+ *  注意，返回的宽高不是当前可见范围的宽高，而是所有内容的宽和高
+ *  collectionView 使用此信息配置其 contentSize 以便滚动
+ *
+ *  备注：经过测试，如果不实现此方法，系统会根据数据源方法自动计算 contentSize，而且每次滚动之前都会调用此方法
+ */
 - (CGSize)collectionViewContentSize; // Subclasses must override this method and use it to return the width and height of the collection view’s content. These values represent the width and height of all the content, not just the content that is currently visible. The collection view uses this information to configure its own content size to facilitate scrolling.
 
 @end
