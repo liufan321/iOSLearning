@@ -11,6 +11,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol UISplitViewControllerDelegate;
 
+/*!
+ UISplitViewControllerDisplayMode 显示模式
+ 
+ - UISplitViewControllerDisplayModeAutomatic        自动
+ - UISplitViewControllerDisplayModePrimaryHidden    主控制器视图隐藏
+ - UISplitViewControllerDisplayModeAllVisible       主/从控制器视图都显示
+ - UISplitViewControllerDisplayModePrimaryOverlay   主控制器视图叠加显示
+ */
 typedef NS_ENUM(NSInteger, UISplitViewControllerDisplayMode) {
     UISplitViewControllerDisplayModeAutomatic,
     UISplitViewControllerDisplayModePrimaryHidden,
@@ -27,20 +35,59 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UISplitViewController : UIViewController
 @property (nullable, nonatomic, weak) id <UISplitViewControllerDelegate> delegate;
 
 // If 'YES', hidden view can be presented and dismissed via a swipe gesture. Defaults to 'YES'.
+// 默认是 'YES'，允许通过轻扫手势显示和隐藏'主控制器'视图，在 iPhone 不支持手势
 @property (nonatomic) BOOL presentsWithGesture NS_AVAILABLE_IOS(5_1);
 
 // Specifies whether the split view controller has collapsed its primary and secondary view controllers together
+// 表示 Split View Controller 是否将其主/从视图控制器折叠在一起
 @property(nonatomic, readonly, getter=isCollapsed) BOOL collapsed  NS_AVAILABLE_IOS(8_0);
 
+/*!
+ 以下两个是`显示模式`相关属性
+ 
+ preferredDisplayMode
+    - 可动画属性，设置主/从控制器视图的隐藏和显示模式
+    - `UISplitViewControllerDisplayModeAutomatic` 是默认属性
+    - 在 iPad 上，竖屏时，以折叠方式主控制器视图叠加显示；横屏时，以左右分栏方式显示
+ 
+ displayMode
+    - 只读属性，返回实际的显示模式
+    - 该属性永远不会返回 `UISplitViewControllerDisplayModeAutomatic`
+ */
 // An animatable property that controls how the primary view controller is hidden and displayed. A value of `UISplitViewControllerDisplayModeAutomatic` specifies the default behavior split view controller, which on an iPad, corresponds to an overlay mode in portrait and a side-by-side mode in landscape.
 @property (nonatomic) UISplitViewControllerDisplayMode preferredDisplayMode NS_AVAILABLE_IOS(8_0);
 
 // The actual current displayMode of the split view controller. This will never return `UISplitViewControllerDisplayModeAutomatic`.
 @property (nonatomic, readonly) UISplitViewControllerDisplayMode displayMode NS_AVAILABLE_IOS(8_0);
 
+/*!
+ ＊ 一个系统的 bar button item
+ ＊ 其操作可以根据 `targetDisplayModeForActionInSplitViewController:` 的返回结果修改 `displayMode` 属性
+ ＊ 当被插入到 从视图控制器的 navigation bar 后，该按钮会根据其执行效果，变化外观
+    - 如果目标 `displayMode` 是 `PrimaryHidden`，显示一个全屏按钮
+    - 如果是 `AllVisible` 或 `PrimaryOverlay`，其外观是一个返回按钮
+    - 如果不做任何操作，该按钮会被隐藏
+ */
 // A system bar button item whose action will change the displayMode property depending on the result of targetDisplayModeForActionInSplitViewController:. When inserted into the navigation bar of the secondary view controller it will change its appearance to match its target display mode. When the target displayMode is PrimaryHidden, this will appear as a fullscreen button, for AllVisible or PrimaryOverlay it will appear as a Back button, and when it won't cause any action it will become hidden.
 - (UIBarButtonItem *)displayModeButtonItem NS_AVAILABLE_IOS(8_0);
 
+/*!
+ 以下三个是可动画属性
+ 
+ preferredPrimaryColumnWidthFraction
+    - 主视图控制器宽度比例，取值范围 0.0~1.0
+    - 需要和 maximumPrimaryColumnWidth 配合使用，否则无效
+ minimumPrimaryColumnWidth
+    - 主视图控制器最小列宽
+    - 以 `点` 为单位
+ maximumPrimaryColumnWidth
+    - 主视图控制器最大列宽
+    - 以 `点` 为单位
+    - self.maximumPrimaryColumnWidth = self.view.bounds.size.width * 0.5;
+ 
+ primaryColumnWidth 
+    - 只读属性，返回主视图控制器的实际列宽
+ */
 // An animatable property that can be used to adjust the relative width of the primary view controller in the split view controller. This preferred width will be limited by the maximum and minimum properties (and potentially other system heuristics).
 @property(nonatomic, assign) CGFloat preferredPrimaryColumnWidthFraction NS_AVAILABLE_IOS(8_0); // default: UISplitViewControllerAutomaticDimension
 
@@ -53,6 +100,17 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UISplitViewController : UIViewController
 // The current primary view controller's column width.
 @property(nonatomic,readonly) CGFloat primaryColumnWidth NS_AVAILABLE_IOS(8_0);
 
+/*!
+ 以下两个方法显示视图控制器
+ 
+ * showDetailViewController
+    - 在 iPhone 上如果有导航控制器，push 显示目标控制器
+    - 在 iPhone 上如果没有导航控制器，modal 显示目标控制器
+    - 在 iPad 上，在右侧视图显示目标控制器视图
+ * showViewController
+    - 在 iPhone 上，modal 显示目标控制器
+    - 在 iPad 上，在右侧视图显示目标控制器视图
+ */
 // In a horizontally-regular environment this will set either the master or detail view controller depending on the original target. In a compact environment this defaults to a full screen presentation. In general the master or detail view controller will have implemented showViewController:sender: so this method would not be invoked.
 - (void)showViewController:(UIViewController *)vc sender:(nullable id)sender NS_AVAILABLE_IOS(8_0);
 
@@ -94,6 +152,10 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UISplitViewController : UIViewController
 // expected to have modified the `primaryViewController` so as to be suitable for display in a compact-width split view controller, potentially
 // using `secondaryViewController` to do so.  Return YES to prevent UIKit from applying its default behavior; return NO to request that UIKit
 // perform its default collapsing behavior.
+// 当 Split View Controller 折叠其子控制器以适应 compact-width 的 Size Class 时会调用此方法
+// 重写此方法可以指定要显示的目标控制器
+// 返回 NO，执行 UIKit 默认的折叠行为，显示 secondaryViewController
+// 返回 YES，显示 primaryViewController
 - (BOOL)splitViewController:(UISplitViewController *)splitViewController collapseSecondaryViewController:(UIViewController *)secondaryViewController ontoPrimaryViewController:(UIViewController *)primaryViewController NS_AVAILABLE_IOS(8_0);
 
 // This method is called when a split view controller is separating its child into two children for a transition from a compact-width size
@@ -125,6 +187,7 @@ NS_CLASS_AVAILABLE_IOS(3_2) @interface UISplitViewController : UIViewController
 
 @interface UIViewController (UISplitViewController)
 
+// 如果 view controller 有 split view controller 返回该 split view controller，否则返回 nil
 @property (nullable, nonatomic, readonly, strong) UISplitViewController *splitViewController; // If the view controller has a split view controller as its ancestor, return it. Returns nil otherwise.
 
 
