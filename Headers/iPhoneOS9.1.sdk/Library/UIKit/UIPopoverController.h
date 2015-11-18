@@ -20,7 +20,13 @@ NS_ASSUME_NONNULL_BEGIN
 @class UIBarButtonItem, UIView;
 @protocol UIPopoverControllerDelegate;
 
-
+/** 
+ UIPopoverController 已经被废弃
+ 
+ - Popover 现在以 UIViewController 的 Modal 方式展现
+ - 请使用 `UIPopoverPresentationController` 并将 Modal 展现样式设置为 UIModalPresentationPopover
+ */
+ 
 NS_CLASS_DEPRECATED_IOS(3_2, 9_0, "UIPopoverController is deprecated. Popovers are now implemented as UIViewController presentations. Use a modal presentation style of UIModalPresentationPopover and UIPopoverPresentationController.")
 @interface UIPopoverController : NSObject <UIAppearanceContainer> {}
 
