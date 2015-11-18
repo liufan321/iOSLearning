@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller;
 
 // Returning UIModalPresentationNone will indicate that an adaptation should not happen.
+// 返回 UIModalPresentationNone 表示不会自适应展现
+// 注：iPhone 开发时，返回 UIModalPresentationNone 便可以实现 popover 的 modal 展现效果！
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traitCollection NS_AVAILABLE_IOS(8_3);
 
 /* If this method is not implemented, or returns nil, then the originally presented view controller is used. */
