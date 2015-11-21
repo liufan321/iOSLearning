@@ -492,6 +492,13 @@ UIKIT_EXTERN NSString *const UIViewControllerHierarchyInconsistencyException NS_
     You may override this method in a UIViewController subclass for updating custom 
      constraints instead of subclassing your view and overriding -[UIView updateConstraints].
     Overrides must call super or send -updateConstraints to the view.
+ 
+ * 基本实现：向视图发送 `-updateConstraints` 消息
+ 
+ - 如果视图从属于视图控制器，当自动布局需要更新约束时
+ - 会向`视图控制器`发送 `updateConstraints` 而不是直接发送给视图
+ - 可以重写 `UIViewController` 子类的此方法，而不必重写每个视图的 `-[UIView updateConstraints]`
+ - 重写此方法必须 super 或者向视图发送 `-updateConstraints` 消息
  */
 - (void)updateViewConstraints NS_AVAILABLE_IOS(6_0);
 @end
