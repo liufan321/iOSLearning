@@ -106,19 +106,56 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
   invoke this method with a nil nib name, then this class' -loadView method will attempt to load a NIB whose
   name is the same as your view controller's class. If no such NIB in fact exists then you must either call
   -setView: before -view is invoked, or override the -loadView method to set up your views programatically.
+ 
+ - 指定的构造函数
+ 
+ - 如果用代码设计 UIViewController 的子类，必须 super 调用父类的实现
+ - 为了方便，默认的 `init` 方法会调用此方法，并且给两个参数都传入 nil
+ - 使用 XIB 开发时，应该在 `File's Owner` 指定自定义的子类，并且建立 view 属性和主视图的连线
+ - 调用此方法时，如果传入的 `nibName` 是 nil，-loadView 方法会尝试加载一个与`视图控制器的类`同名的 XIB 文件
+ - 如果该 XIB 文件不存在，调用 -view(getter)方法之前，必须先调用 -setView: 设置主视图
+ - 也可以重写 -loadView 方法，通过代码设置视图的层次结构
 */
 - (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
+/**
+ - 如果 view 还没有被设置，第一个 getter 会调用 [self laodView]
+ - 如果重写 setter 或 getter，必须 super 调用父类的实现
+ */
 @property(null_resettable, nonatomic,strong) UIView *view; // The getter first invokes [self loadView] if the view hasn't been set yet. Subclasses must call super if they override the setter or getter.
+/**
+ - 如果不使用 XIB 开发，子类应该在此方法中创建自己的视图层次结构
+ - 永远不要直接调用此方法
+ */
 - (void)loadView; // This is where subclasses should create their custom view hierarchy if they aren't using a nib. Should never be called directly.
+/**
+ 如果 view 还没有被设置，加载视图控制器的 view
+ */
 - (void)loadViewIfNeeded NS_AVAILABLE_IOS(9_0); // Loads the view controller's view if it has not already been set.
+/**
+ 如果视图控制器的 view 已经被加载，返回 view，否则返回 nil
+ */
 @property(nullable, nonatomic, readonly, strong) UIView *viewIfLoaded NS_AVAILABLE_IOS(9_0); // Returns the view controller's view if loaded, nil if not.
 
+// 以下两个方法在 iOS 6.0 被废弃
 - (void)viewWillUnload NS_DEPRECATED_IOS(5_0,6_0) __TVOS_PROHIBITED;
+/**
+ - 当视图控制器的视图被释放或者设置为 nil 时被调用
+ - 例如：视图警告可能会导致视图被清理
+ 
+ 注意：iOS 6.0 之后，默认不会再释放视图
+ */
 - (void)viewDidUnload NS_DEPRECATED_IOS(3_0,6_0) __TVOS_PROHIBITED; // Called after the view controller's view is released and set to nil. For example, a memory warning which causes the view to be purged. Not invoked as a result of -dealloc.
 
+/**
+ view 被加载完成后调用
+ 
+ - 使用代码开发时，在 -loadView 方法之后调用
+ - 使用 XIB 开发时，在 view 被解档设置后调用
+ */
 - (void)viewDidLoad; // Called after the view has been loaded. For view controllers created in code, this is after -loadView. For view controllers unarchived from a nib, this is after the view is set.
+/// 返回 view 是否被加载
 - (BOOL)isViewLoaded NS_AVAILABLE_IOS(3_0);
 
 @property(nullable, nonatomic, readonly, copy) NSString *nibName;     // The name of the nib to be loaded to instantiate the view.
@@ -164,6 +201,11 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 
 @property(nullable, nonatomic,copy) NSString *title;  // Localized title for use by a parent controller.
 
+/**
+ 当应用程序接收到内存警告后被调用
+ 
+ iOS 6.0 之后，默认不会再释放视图
+ */
 - (void)didReceiveMemoryWarning; // Called when the parent application receives a memory warning. On iOS 6.0 it will no longer clear the view by default.
 
 /*
@@ -265,6 +307,11 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 @end
 
 // To make it more convenient for applications to adopt rotation, a view controller may implement the below methods. Your UIWindow's frame should use [UIScreen mainScreen].bounds as its frame.
+/**
+ 为了更方便地处理应用程序的旋转，视图控制器可以实现以下方法
+ 
+ - 注意：需要使用 [UIScreen mainScreen].bounds 指定应用程序 UIWindow 的 frame
+ */
 @interface UIViewController (UIViewControllerRotation)
 
 // call this method when your return value from shouldAutorotateToInterfaceOrientation: changes
@@ -275,21 +322,32 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation NS_DEPRECATED_IOS(2_0, 6_0) __TVOS_PROHIBITED;
 
 // New Autorotation support.
+// 新的自动旋转支持
+// 返回允许设备旋转
 - (BOOL)shouldAutorotate NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
+// 返回支持的设备方向
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
 // Returns interface orientation masks.
+// 返回 Modal 展现时需要的屏幕方向
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED;
 
 // The rotating header and footer views will slide out during the rotation and back in once it has completed.
+// 页头和页脚视图会在旋转过程中滑出屏幕，旋转结束后返回
 - (nullable UIView *)rotatingHeaderView NS_DEPRECATED_IOS(2_0,8_0, "Header views are animated along with the rest of the view hierarchy") __TVOS_PROHIBITED;     // Must be in the view hierarchy. Default returns nil.
+                           // 必须包含在视图的层次结构中，默认是 nil
 - (nullable UIView *)rotatingFooterView NS_DEPRECATED_IOS(2_0,8_0, "Footer views are animated along with the rest of the view hierarchy") __TVOS_PROHIBITED;     // Must be in the view hierarchy. Default returns nil.
+                           // 必须包含在视图的层次结构中，默认是 nil
 
+// 设备方向，iOS 8.0 已经被废弃
 @property(nonatomic,readonly) UIInterfaceOrientation interfaceOrientation NS_DEPRECATED_IOS(2_0,8_0) __TVOS_PROHIBITED;
 
 // Notifies when rotation begins, reaches halfway point and ends.
+// 开始旋转发送通知，也可以监听旋转到一半或结束的点
+// iOS 8.0 被废弃，请实现 viewWillTransitionToSize:withTransitionCoordinator: 替代
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(2_0,8_0, "Implement viewWillTransitionToSize:withTransitionCoordinator: instead") __TVOS_PROHIBITED;
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation NS_DEPRECATED_IOS(2_0,8_0) __TVOS_PROHIBITED;
 
+// iOS 8.0 被废弃，请实现 viewWillTransitionToSize:withTransitionCoordinator: 替代
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(3_0,8_0, "Implement viewWillTransitionToSize:withTransitionCoordinator: instead") __TVOS_PROHIBITED;
 
 - (void)willAnimateFirstHalfOfRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration NS_DEPRECATED_IOS(2_0, 5_0) __TVOS_PROHIBITED;
