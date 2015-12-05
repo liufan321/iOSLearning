@@ -120,7 +120,7 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
 /**
- - 如果 view 还没有被设置，第一个 getter 会调用 [self laodView]
+ - 如果 view 还没有被设置，第一个 getter 会调用 [self loadView]
  - 如果重写 setter 或 getter，必须 super 调用父类的实现
  */
 @property(null_resettable, nonatomic,strong) UIView *view; // The getter first invokes [self loadView] if the view hasn't been set yet. Subclasses must call super if they override the setter or getter.
