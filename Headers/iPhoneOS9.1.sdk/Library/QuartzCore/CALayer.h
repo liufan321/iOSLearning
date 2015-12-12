@@ -41,10 +41,12 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
 }
 
 /** Layer creation and initialization. **/
+/** 图层创建和初始化 **/
 
 + (instancetype)layer;
 
 /* The designated initializer. */
+/* 指定构造函数 */
 
 - (instancetype)init;
 
@@ -53,6 +55,11 @@ typedef NS_OPTIONS (unsigned int, CAEdgeAntialiasingMask)
  * this method to copy their instance variables into the presentation
  * layer (subclasses should call the superclass afterwards). Calling this
  * method in any other situation will result in undefined behavior. */
+/*
+ - 此构造函数供 CoreAnimation 使用，创建图层的卷影副本，可用于展现图层
+ - 自定义子类可以重写此方法，将子类的成员变量复制到展现图层，super 方法应该放置在最后
+ - 在其他场景调用此方法可能会导致不确定的行为
+ */
 
 - (instancetype)initWithLayer:(id)layer;
 

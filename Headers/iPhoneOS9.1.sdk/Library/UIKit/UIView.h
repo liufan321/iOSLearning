@@ -199,6 +199,22 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIView : UIResponder <NSCoding, UIAppeara
 @property(nonatomic,readonly,copy) NSArray<__kindof UIView *> *subviews;
 @property(nullable, nonatomic,readonly) UIWindow     *window;
 
+/**
+ Unlinks the view from its superview and its window, and removes it from the responder chain.
+ - 从父视图或者窗口中移除当前视图
+ - 并且从响应者链条中删除
+ 
+ If the view’s superview is not nil, the superview releases the view.
+ - 如果视图的父视图不为 nil，父视图会 release 一次当前视图
+ 
+ Calling this method removes any constraints that refer to the view you are removing, or that refer to any view in the subtree of the view you are removing.
+ - 调用此方法会删除与视图相关的所有约束
+ 
+ Important:Important
+ 重要：
+ Never call this method from inside your view’s drawRect: method.
+ 永远不要在视图的 `drawRect:` 方法中调用此方法
+ */
 - (void)removeFromSuperview;
 - (void)insertSubview:(UIView *)view atIndex:(NSInteger)index;
 - (void)exchangeSubviewAtIndex:(NSInteger)index1 withSubviewAtIndex:(NSInteger)index2;
