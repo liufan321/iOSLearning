@@ -212,16 +212,23 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIViewController : UIResponder <NSCoding,
   If this view controller is a child of a containing view controller (e.g. a navigation controller or tab bar
   controller,) this is the containing view controller.  Note that as of 5.0 this no longer will return the
   presenting view controller.
+ 
+ - 如果当前视图控制器是一个容器视图控制器的子控制器（例如一个 navigation 或 tab bar 控制器）
+ - 返回容器视图控制器
+ - 注意：从 5.0 开始，不再返回正在展现的视图控制器
 */
 @property(nullable,nonatomic,weak,readonly) UIViewController *parentViewController;
 
 // This property has been replaced by presentedViewController.
+// 此属性已经被 presentedViewController 替换
 @property(nullable, nonatomic,readonly) UIViewController *modalViewController NS_DEPRECATED_IOS(2_0, 6_0) __TVOS_PROHIBITED;
 
 // The view controller that was presented by this view controller or its nearest ancestor.
+// 由当前视图控制器 modal 展现的视图控制器
 @property(nullable, nonatomic,readonly) UIViewController *presentedViewController  NS_AVAILABLE_IOS(5_0);
 
 // The view controller that presented this view controller (or its farthest ancestor.)
+// modal 展现当前视图控制器的视图控制器
 @property(nullable, nonatomic,readonly) UIViewController *presentingViewController NS_AVAILABLE_IOS(5_0);
 
 /*
