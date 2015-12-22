@@ -95,8 +95,14 @@ NS_CLASS_AVAILABLE_IOS(5_0) @interface UIPageViewController : UIViewController {
 @required
 
 // In terms of navigation direction. For example, for 'UIPageViewControllerNavigationOrientationHorizontal', view controllers coming 'before' would be to the left of the argument view controller, those coming 'after' would be to the right.
+// 如果将导航方向设置成 `UIPageViewControllerNavigationOrientationHorizontal`，`before` 返回左侧的视图控制器，`after` 返回右侧的视图控制器
+
 // Return 'nil' to indicate that no more progress can be made in the given direction.
+// 返回 `nil`，表示该方向上没有更多的视图控制器
+
 // For gesture-initiated transitions, the page view controller obtains view controllers via these methods, so use of setViewControllers:direction:animated:completion: is not required.
+// 如果只是通过手势实现的控制器转换，分页视图控制器可以通过以下两个方法获得明细视图控制器
+// 因此不一定非要调用 `setViewControllers:direction:animated:completion:` 方法
 - (nullable UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController;
 - (nullable UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController;
 

@@ -99,7 +99,16 @@ NS_CLASS_AVAILABLE_IOS(2_0) @interface UIScrollView : UIView <NSCoding>
 @property(nonatomic,readonly,getter=isZoomBouncing)  BOOL zoomBouncing;  // returns YES if we are in the middle of zooming back to the min/max value
 
 // When the user taps the status bar, the scroll view beneath the touch which is closest to the status bar will be scrolled to top, but only if its `scrollsToTop` property is YES, its delegate does not return NO from `shouldScrollViewScrollToTop`, and it is not already at the top.
+// 当用户点击状态栏，最靠近状态栏下方的滚动视图，会滚动到顶部
+// 但是：
+// - `scrollsToTop` 属性必须被设置为 `YES`
+// - `shouldScrollViewScrollToTop` 代理方法中不能返回 `NO`
+// - 同时 scrollView 当前不在顶部位置
+//
 // On iPhone, we execute this gesture only if there's one on-screen scroll view with `scrollsToTop` == YES. If more than one is found, none will be scrolled.
+// * 在 iPhone 上，屏幕上只有一个 scroll view 的 `scrollsToTop` == YES 时，此手势才会被触发，如果超过一个滚动视图，将不会发生滚动
+//
+// 默认值是 YES
 @property(nonatomic) BOOL  scrollsToTop __TVOS_PROHIBITED;          // default is YES.
 
 // Use these accessors to configure the scroll view's built-in gesture recognizers.
