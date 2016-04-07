@@ -117,6 +117,12 @@ NS_CLASS_AVAILABLE_IOS(9_0) @interface UICollectionViewFocusUpdateContext : UIFo
 
 NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 
+/// 构造函数
+///
+/// @param frame  frame
+/// @param layout 用于组织排列 item 的布局对象，collection view 会对指定对象强引用，必须不能为 nil。
+///
+/// @return 指定 frame 和 layout 的 collectionView，如果对象创建失败，返回 nil
 - (instancetype)initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewLayout *)layout NS_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
@@ -174,11 +180,33 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 - (NSArray<NSIndexPath *> *)indexPathsForVisibleSupplementaryElementsOfKind:(NSString *)elementKind NS_AVAILABLE_IOS(9_0);
 
 // Interacting with the collection view.
+#pragma mark - 与 collection view 交互
 
+/**
+ Scrolls the collection view contents until the specified item is visible.
+ 将 collection view 内容滚动至`指定 item`可见的位置
+ */
 - (void)scrollToItemAtIndexPath:(NSIndexPath *)indexPath atScrollPosition:(UICollectionViewScrollPosition)scrollPosition animated:(BOOL)animated;
 
 // These methods allow dynamic modification of the current set of items in the collection view
+// 以下方法允许动态修改 collection view 中的当前 items 集合
+/**
+ Inserts new sections at the specified indexes.
+ 在指定的 indexes 插入新的 sections
+ 
+ Use this method to insert one or more sections into the collection view. This method adds the sections, and it is up to your data source to report the number of items in each section when asked for the information. The collection view then uses that information to get updated layout attributes for the newly inserted sections and items. If the insertions cause a change in the collection view’s visible content, those changes are animated into place.
+ * 使用此方法向 collection view 插入一个或多个 section
+ * 此方法添加 sections，并且询问数据源每个 section 中包含的 item 数量
+ * 然后使用这些信息为新插入的 section 和 items 获取更新后的布局属性
+ * 如果插入的内容导致 collection view 可见内容的变化，这些变化会以动画方式调整
+ 
+ You can also call this method from a block passed to the performBatchUpdates:completion: method when you want to animate multiple separate changes into place at the same time. See the description of that method for more information.
+ * 如果希望在同一时间，以动画的方式改变多个 section 或者 item
+ * 还可以在传递给 `performBatchUpdates:completion:` 方法的 block 中调用此方法
+ * 相关内容，请参阅该方法的信息
+ */
 - (void)insertSections:(NSIndexSet *)sections;
+
 - (void)deleteSections:(NSIndexSet *)sections;
 - (void)reloadSections:(NSIndexSet *)sections;
 - (void)moveSection:(NSInteger)section toSection:(NSInteger)newSection;
@@ -188,9 +216,24 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 - (void)reloadItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths;
 - (void)moveItemAtIndexPath:(NSIndexPath *)indexPath toIndexPath:(NSIndexPath *)newIndexPath;
 
+/**
+ Animates multiple insert, delete, reload, and move operations as a group.
+ 以动画组的方式，同时处理多个插入、删除、刷新和移动操作
+ 
+ You can use this method in cases where you want to make multiple changes to the collection view in one single animated operation, as opposed to in several separate animations. You might use this method to insert, delete, reload, or move cells or use it to change the layout parameters associated with one or more cells. Use the blocked passed in the updates parameter to specify all of the operations you want to perform.
+ * 如果希望在一个动画操作中实现 collection view 中的多处变化，可以使用此方法
+ * 可以使用此方法插入、删除、加载或移动多个 cell，或者同时变化这些 cell 关联的布局参数
+ * 在传递给 update 参数的块代码中，指定所有希望执行的操作即可
+ 
+ Deletes are processed before inserts in batch operations. This means the indexes for the deletions are processed relative to the indexes of the collection view’s state before the batch operation, and the indexes for the insertions are processed relative to the indexes of the state after all the deletions in the batch operation.
+ * 注意：在批量执行的操作中，删除操作会先于插入操作执行
+ */
 - (void)performBatchUpdates:(void (^ __nullable)(void))updates completion:(void (^ __nullable)(BOOL finished))completion; // allows multiple insert/delete/reload/move calls to be animated simultaneously. Nestable.
 
 // Support for reordering
+#pragma mark - 支持重新排序
+
+
 - (BOOL)beginInteractiveMovementForItemAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(9_0); // returns NO if reordering was prevented from beginning - otherwise YES
 - (void)updateInteractiveMovementTargetPosition:(CGPoint)targetPosition NS_AVAILABLE_IOS(9_0);
 - (void)endInteractiveMovement NS_AVAILABLE_IOS(9_0);
@@ -204,6 +247,12 @@ NS_CLASS_AVAILABLE_IOS(6_0) @interface UICollectionView : UIScrollView
 
 @interface NSIndexPath (UICollectionViewAdditions)
 
+/// 实例化 IndexPath
+///
+/// @param item    item
+/// @param section section
+///
+/// @return NSIndexPath
 + (instancetype)indexPathForItem:(NSInteger)item inSection:(NSInteger)section NS_AVAILABLE_IOS(6_0);
 
 @property (nonatomic, readonly) NSInteger item NS_AVAILABLE_IOS(6_0);
