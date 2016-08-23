@@ -22,33 +22,54 @@ typedef NS_ENUM(NSInteger, WCSessionActivationState) {
  *  The default session is used to communicate between two counterpart apps
  *  (i.e. iOS app and its native WatchKit extension). The session provides
  *  methods for sending, receiving, and tracking state.
+ *  - 默认会话用于在两个应用程序之间通讯（例如 iOS App 和它的 WatchKit 扩展程序）
+ *  - 会话提供的方法可以用于：发送／接受／跟踪状态
  *
  *  On start up an app should set a delegate on the default session and call
  *  activate. This will allow the system to populate the state properties and
  *  deliver any outstanding background transfers.
+ *  - 在应用程序启动时，应该设置 `默认会话` 的代理，并且调用 `activate` 方法激活会话
+ *  - 这将允许系统填充状态属性，并提交没有完成的后台传输
  */
 NS_CLASS_AVAILABLE_IOS(9.0)
 @interface WCSession : NSObject
 
-/** Check if session is supported on this iOS device. Session is always available on WatchOS */
+/** Check if session is supported on this iOS device. Session is always available on WatchOS
+    检查当前 iOS 设备是否支持会话。在 WatchOS 上会话永远可用 */
 + (BOOL)isSupported;
 
-/** Use the default session for all transferring of content and state monitoring. */
+/** Use the default session for all transferring of content and state monitoring.
+    所有内容传输和状态监控都应使用 `默认会话` */
 + (WCSession *)defaultSession;
 
-/** Use the default session instead. */
+/** Use the default session instead.
+    不要使用此方法，请使用 `defaultSession` */
 - (instancetype)init NS_UNAVAILABLE;
 
-/** A delegate must exist before the session will allow sends. */
+/** A delegate must exist before the session will allow sends.
+    在允许发送数据前，必须设置代理 */
 @property (nonatomic, weak, nullable) id <WCSessionDelegate> delegate;
 
-/** The default session must be activated on startup before the session's properties contain correct values and will begin receiving delegate callbacks. Calling activate without a delegate set is undefined. If the WCSessionDelegate session:activationDidCompleteWithState:error: is implemented this method becomes an asynchronous call. */
+/** The default session must be activated on startup before the session's properties contain correct values and will begin receiving delegate callbacks. Calling activate without a delegate set is undefined. If the WCSessionDelegate session:activationDidCompleteWithState:error: is implemented this method becomes an asynchronous call.
+ 
+    - 在应用程序启动时，必须激活默认会话
+    - 从而保证会话属性的值正确，并且能够接收代理回调
+    - 如果没有设置代理，直接调用 `activateSession` 方法会在控制台输出错误
+    - 此方法执行完毕后，会在异步调用 `WCSessionDelegate` 的 `session:activationDidCompleteWithState:error:` 方法
+    
+    In watchOS 2.1 and earlier, this method activates the session synchronously and always results in an active session.
+    - 在 watchOS 2.1 及早期版本，此方法会同步激活会话，并且始终激活会话
+ */
 - (void)activateSession;
 
-/** The state of the current session */
+/** The state of the current session
+    当前会话的状态
+ */
 @property (nonatomic, readonly) WCSessionActivationState activationState __IOS_AVAILABLE(9.3) __WATCHOS_AVAILABLE(2.2);
 
-/** Whether or not there is more content for the session to deliver */
+/** Whether or not there is more content for the session to deliver 
+    会话是否有更多的内容需要提交
+ */
 @property (nonatomic, readonly) BOOL hasContentPending __IOS_AVAILABLE(10.0) __WATCHOS_AVAILABLE(3.0);
 
 /** ------------------------- iOS App State For Watch ---------------------------
