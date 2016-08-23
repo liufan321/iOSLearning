@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // The following keys are understood by UIViewControllerContextTransitioning context objects
 // that are created by the system.
+// 以下内容用于理解由系统创建的 UIViewControllerContextTransitioning 上下文对象
 
 UIKIT_EXTERN NSString *const UITransitionContextFromViewControllerKey NS_AVAILABLE_IOS(7_0);
 UIKIT_EXTERN NSString *const UITransitionContextToViewControllerKey NS_AVAILABLE_IOS(7_0);
@@ -30,6 +31,7 @@ UIKIT_EXTERN NSString *const UITransitionContextToViewKey NS_AVAILABLE_IOS(8_0);
 // animateTransition: method if needed. If there is no interaction controller,
 // then the system automatically invokes the animator's animateTransition:
 // method.
+//
 //
 // The system queries the view controller's transitionDelegate or the the
 // navigation controller's delegate to determine if an animator or interaction
